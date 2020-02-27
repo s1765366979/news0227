@@ -46,6 +46,6 @@ class ProductionConfig(Config):
 # 提供一个接口供外界调用
 # 使用方式提供：config_dict['development] --> DevelopmentConfig
 config_dict = {
-    "development":DevelopmentConfig,
-    "production":ProductionConfig
+    "development": DevelopmentConfig,
+    "production": ProductionConfig
 }

@@ -4,7 +4,6 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from info import create_app, db
 
-
 # 传入的参数是development获取开发模式对应的app对象
 # 传入的参数是production获取线上模式对应的app对象
 app = create_app("development")
@@ -17,7 +16,6 @@ Migrate(app, db)
 
 # 8.创建迁移命令
 manager.add_command('db', MigrateCommand)
-
 
 
 @app.route('/')
