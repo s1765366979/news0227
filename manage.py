@@ -7,7 +7,7 @@ from info import create_app, db
 
 # 传入的参数是development获取开发模式对应的app对象
 # 传入的参数是production获取线上模式对应的app对象
-app = create_app("developmengt")
+app = create_app("development")
 
 # 6.创建管理对象
 manager = Manager(app)
