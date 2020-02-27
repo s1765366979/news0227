@@ -6,6 +6,8 @@ from flask_wtf.csrf import CSRFProtect
 from flask_session import Session
 # 将存储数据到的session
 from flask import session
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 
 import pymysql
 
@@ -35,10 +37,11 @@ class Config(object):
 
     # 将flask.session的存储从　服务器“内存”　调整到　“redis”数据库配置如下
     SESSION_TYPE = 'redis'  # 标明存储的数据库类型
-    SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=1)
-    SESSION_USE_SIGNER = True # 对于session_id需要加密处理
-    SESSION_PERMANENT = False #redis中的session数据不需要永久存储
-    PERMANENT_SESSION_LIFTTIME = 86400 # 设置redis中session过期时长
+    SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=1)  # 只需要redis对象
+    SESSION_USE_SIGNER = True  # 对于session_id需要加密处理
+    SESSION_PERMANENT = False  # redis中的session数据不需要永久存储
+    PERMANENT_SESSION_LIFTTIME = 86400  # 设置redis中session过期时长
+
 
 # 1.创建app对象
 app = Flask(__name__)
@@ -62,17 +65,24 @@ CSRFProtect(app)
 # 5.创建Flask_session工具对象：将flask.session的存储从　服务器“内存”　调整到　“redis”数据库
 Session(app)
 
-# 5.创建管理对象
+# 6.创建管理对象
+manager = Manager(app)
 
-# 6.创建迁移对象
+# 7.创建迁移对象
+Migrate(app, db)
 
-# 7.创建迁移命令
+# 8.创建迁移命令
+manager.add_command('db', MigrateCommand)
 
-# 8.使用管理对象运行项目
+
+
 @app.route('/')
 def news():
     session['name'] = 'laowang'
     return "你好"
 
+
 if __name__ == '__main__':
-    app.run()
+    # app.run()
+    # 9.使用管理对象运行项目
+    manager.run()
