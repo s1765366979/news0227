@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
+from config import config_dict
 from flask_wtf.csrf import CSRFProtect
 # session拓展工具,　将flask中的session存储调整到redis
 from flask_session import Session
@@ -15,46 +16,47 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 
-# 0.创建项目配置
-class Config(object):
-    """自定义项目配置"""
-
-    # 　开启项目调试模式
-    DEBUG = True
-
-    # 　mysql数据库配置
-    # 连接mysql的配置
-    SQLALCHEMY_DATABASE_URI = "mysql://root:python@127.0.0.1:3306/news"
-    # 开启数据库跟踪修改操作
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-
-    # redis数据库的配置信息
-    REDIS_HOST = "127.0.0.1"
-    REDIS_PORT = 6379
-
-    # 使用session需要设置加密字符串
-    SECRET_KEY = "SNFKALFAGDASDFASDGHJ"
-
-    # 将flask.session的存储从　服务器“内存”　调整到　“redis”数据库配置如下
-    SESSION_TYPE = 'redis'  # 标明存储的数据库类型
-    SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=1)  # 只需要redis对象
-    SESSION_USE_SIGNER = True  # 对于session_id需要加密处理
-    SESSION_PERMANENT = False  # redis中的session数据不需要永久存储
-    PERMANENT_SESSION_LIFTTIME = 86400  # 设置redis中session过期时长
+# # 0.创建项目配置
+# class Config(object):
+#     """自定义项目配置"""
+#
+#     # 　开启项目调试模式
+#     DEBUG = True
+#
+#     # 　mysql数据库配置
+#     # 连接mysql的配置
+#     SQLALCHEMY_DATABASE_URI = "mysql://root:python@127.0.0.1:3306/news"
+#     # 开启数据库跟踪修改操作
+#     SQLALCHEMY_TRACK_MODIFICATIONS = True
+#
+#     # redis数据库的配置信息
+#     REDIS_HOST = "127.0.0.1"
+#     REDIS_PORT = 6379
+#
+#     # 使用session需要设置加密字符串
+#     SECRET_KEY = "SNFKALFAGDASDFASDGHJ"
+#
+#     # 将flask.session的存储从　服务器“内存”　调整到　“redis”数据库配置如下
+#     SESSION_TYPE = 'redis'  # 标明存储的数据库类型
+#     SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=1)  # 只需要redis对象
+#     SESSION_USE_SIGNER = True  # 对于session_id需要加密处理
+#     SESSION_PERMANENT = False  # redis中的session数据不需要永久存储
+#     PERMANENT_SESSION_LIFTTIME = 86400  # 设置redis中session过期时长
 
 
 # 1.创建app对象
 app = Flask(__name__)
 
 # 2.将配置信息添加到app上
-app.config.from_object(Config)
+config_class = config_dict['development']
+app.config.from_object(config_class)
 
 # 3.数据库对象(mysal/redis)
 # mysql数据库对象
 db = SQLAlchemy(app)
 
 # redis数据库对象
-redis_store = StrictRedis(host=Config.REDIS_HOST, port=Config.REDIS_PORT, decode_responses=True)
+redis_store = StrictRedis(host=config_class.REDIS_HOST, port=config_class.REDIS_PORT, decode_responses=True)
 
 # 4.给项目添加CSRF保护机制
 # 4.1提取cooking中的csrf_token
