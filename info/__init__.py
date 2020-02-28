@@ -5,8 +5,10 @@ from config import config_dict
 from flask_wtf.csrf import CSRFProtect
 # session拓展工具,　将flask中的session存储调整到redis
 from flask_session import Session
+from logging.handlers import RotatingFileHandler
 
 import pymysql
+import logging
 
 # python2和python３数据库相互转化使用
 pymysql.install_as_MySQLdb()
@@ -18,6 +20,26 @@ redis_store = None
 db = SQLAlchemy()
 
 
+def write_log(config_class):
+    # 设置日志的记录等级
+    # DevelopmentConfig.LOG_LEVEL == logging.DEBUG
+    # ProductionConfig.LOG_LEVEL == logging.ERORR
+    # logging.basicConfig(level=logging.DEBUG)  # 调试DEBUG级
+    logging.basicConfig(level=config_class.LOG_LEVEL)  # 调试DEBUG级
+
+    # 创建日志记录器，指明日志保存的路径、每个日志文件的最大大小、保存的日志文件个数上线
+    file_log_handler = RotatingFileHandler('logs/log', maxBytes=1024 * 1024 * 100, backupCount=10)
+
+    # 创建日志记录的格式、日志等级　输入日志信息的文件名　行数　日志信息
+    formatter = logging.Formatter('%(levelname)s %(filename)s: %(lineno)d %(message)s')
+
+    # 为创建的日志记录器设置日志日志记录格式
+    file_log_handler.setFormatter(formatter)
+
+    # 为全局的日志工具对象,(flask app使用的)添加日志记录器
+    logging.getLogger().addHandler(file_log_handler)
+
+
 def create_app(config_name):
     """
     工厂方法:development --->DevelopmentConfig/ production --->ProductionConfig
@@ -27,6 +49,9 @@ def create_app(config_name):
 
     # 2.将配置信息添加到app上
     config_class = config_dict[config_name]
+
+    # 日志记录
+    write_log(config_class)
 
     # DevelopmentConfig --->赋予app属性：开发模式app
     # ProductionConfig --->赋予app属性：线上模式app

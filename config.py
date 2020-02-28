@@ -1,5 +1,6 @@
 from redis import StrictRedis
 
+import logging
 
 # 0.创建项目配置
 class Config(object):
@@ -35,12 +36,18 @@ class DevelopmentConfig(Config):
     # 开启项目调试模式
     DEBUG = True
 
+    # 开发模式的日志设置为：DEBUG
+    LOG_LEVEL = logging.DEBUG
+
 
 class ProductionConfig(Config):
     """线上模式的项目配置信息"""
 
     # 线上模式不需要debug信息查看　减少IO压力
     DEBUG = False
+
+    # 线上模式的日志设置为：ERROR
+    LOG_LEVEL = logging.ERROR
 
 
 # 提供一个接口供外界调用
